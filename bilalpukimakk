@@ -1,69 +1,76 @@
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+local player = Players.LocalPlayer
 
-local function getKorbloxAssets()
-    return {
-        meshId = "rbxassetid://101851696",
-        textureId = "rbxassetid://101851254",
-        r15Mesh = "rbxassetid://902942096",
-        r15Texture = "rbxassetid://902843398",
-        color = Color3.fromRGB(64, 64, 64)
-    }
+local function applyHeadless(char)
+    local head = char:FindFirstChild("Head")
+    if not head then return end
+    head.Transparency = 1
+    head.CanCollide = false
+    local face = head:FindFirstChild("face")
+    if face then face:Destroy() end
+    local mesh = Instance.new("SpecialMesh")
+    mesh.MeshType = Enum.MeshType.FileMesh
+    mesh.MeshId = "rbxassetid://1095708"
+    mesh.Scale = Vector3.new(0.001, 0.001, 0.001)
+    mesh.Parent = head
+    head:GetPropertyChangedSignal("Transparency"):Connect(function()
+        if head.Transparency ~= 1 then head.Transparency = 1 end
+    end)
 end
 
-local function applyKorblox()
-    local char = player.Character
+local function applyKorbloxR6(char)
+    local rightLeg = char:FindFirstChild("Right Leg")
+    if not rightLeg then return end
+    for _, child in ipairs(rightLeg:GetChildren()) do
+        if child:IsA("SpecialMesh") or child:IsA("CharacterMesh") then
+            child:Destroy()
+        end
+    end
+    rightLeg.Color = Color3.fromRGB(64, 64, 64)
+    local mesh = Instance.new("SpecialMesh")
+    mesh.MeshType = Enum.MeshType.FileMesh
+    mesh.MeshId = "rbxassetid://101851696"
+    mesh.TextureId = "rbxassetid://101851254"
+    mesh.Parent = rightLeg
+end
+
+local function applyKorbloxR15(char)
+    local rightLeg = char:FindFirstChild("RightLeg")
+    if rightLeg then
+        for _, child in ipairs(rightLeg:GetChildren()) do
+            if child:IsA("SpecialMesh") or child:IsA("CharacterMesh") then
+                child:Destroy()
+            end
+        end
+        rightLeg.Color = Color3.fromRGB(64, 64, 64)
+        local mesh = Instance.new("SpecialMesh")
+        mesh.MeshType = Enum.MeshType.FileMesh
+        mesh.MeshId = "rbxassetid://101851696"
+        mesh.TextureId = "rbxassetid://101851254"
+        mesh.Parent = rightLeg
+    end
+end
+
+local function applyEffects(char)
     if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if not hum then return end
-
-    local assets = getKorbloxAssets()
-
-    if hum.RigType == Enum.HumanoidRigType.R15 then
-        local rf = char:FindFirstChild("RightFoot")
-        local rl = char:FindFirstChild("RightLowerLeg")
-        local ru = char:FindFirstChild("RightUpperLeg")
-
-        if ru and rl and rf then
-            rf.Transparency = 1
-            rl.Transparency = 1
-            ru.MeshId = assets.r15Mesh
-            ru.TextureID = assets.r15Texture
-            ru.Color = Color3.new(1, 1, 1)
-            ru.Transparency = 0
-        end
-    else
-        local rightLeg = char:FindFirstChild("Right Leg")
-        if rightLeg then
-            for _, v in ipairs(char:GetChildren()) do
-                if v:IsA("CharacterMesh") and v.BodyPart == Enum.BodyPart.RightLeg then
-                    v:Destroy()
-                end
-            end
-            
-            local mesh = rightLeg:FindFirstChildOfClass("SpecialMesh")
-            if not mesh then
-                mesh = Instance.new("SpecialMesh")
-                mesh.Parent = rightLeg
-            end
-            
-            rightLeg.Color = assets.color
-            rightLeg.Transparency = 0
-            mesh.MeshType = Enum.MeshType.FileMesh
-            mesh.MeshId = assets.meshId
-            mesh.TextureId = assets.textureId
-            mesh.Scale = Vector3.new(1, 1, 1)
-        end
+    task.wait(1)
+    applyHeadless(char)
+    if char:FindFirstChild("UpperTorso") then
+        applyKorbloxR15(char)
+    elseif char:FindFirstChild("Torso") then
+        applyKorbloxR6(char)
     end
 end
 
-task.spawn(function()
-    while true do
-        if player.Character then
-            applyKorblox()
-        end
-        task.wait(0.5)
-    end
-end)
+local character = player.Character
+if character then
+    applyEffects(character)
+else
+    player.CharacterAdded:Wait()
+    applyEffects(player.Character)
+end
 
-player.CharacterAdded:Connect(applyKorblox)
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    applyEffects(char)
+end)
