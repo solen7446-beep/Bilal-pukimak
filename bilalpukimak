@@ -1,0 +1,72 @@
+local Players=game:GetService("Players")
+local player=Players.LocalPlayer
+local function applyHeadless(char)
+local head=char:FindFirstChild("Head")
+if not head then return end
+head.Transparency=1
+head.CanCollide=false
+local face=head:FindFirstChild("face")
+if face then face:Destroy()end
+local mesh=Instance.new("SpecialMesh")
+mesh.MeshType=Enum.MeshType.FileMesh
+mesh.MeshId="rbxassetid://1095708"
+mesh.Scale=Vector3.new(0.001,0.001,0.001)
+mesh.Parent=head
+head:GetPropertyChangedSignal("Transparency"):Connect(function()
+if head.Transparency~=1 then head.Transparency=1 end
+end)
+end
+local function applyKorbloxR6(char)
+local rightLeg=char:FindFirstChild("Right Leg")
+if not rightLeg then return end
+for _,child in ipairs(rightLeg:GetChildren())do
+if child:IsA("SpecialMesh")or child:IsA("CharacterMesh")then child:Destroy()end
+end
+rightLeg.Color=Color3.fromRGB(64,64,64)
+local mesh=Instance.new("SpecialMesh")
+mesh.MeshType=Enum.MeshType.FileMesh
+mesh.MeshId="rbxassetid://101851696"
+mesh.TextureId="rbxassetid://101851254"
+mesh.Parent=rightLeg
+end
+local function applyKorbloxR15(char)
+local upperLeg=char:FindFirstChild("RightUpperLeg")
+local lowerLeg=char:FindFirstChild("RightLowerLeg")
+local foot=char:FindFirstChild("RightFoot")
+if upperLeg then upperLeg.MeshId="rbxassetid://902942096";upperLeg.TextureID="rbxassetid://902843398"end
+if lowerLeg then lowerLeg.MeshId="rbxassetid://902942093";lowerLeg.Transparency=1 end
+if foot then foot.MeshId="rbxassetid://902942089";foot.Transparency=1 end
+end
+local function addText(char)
+local head=char:FindFirstChild("Head")
+if not head then return end
+local billboard=Instance.new("BillboardGui")
+billboard.Size=UDim2.new(0,200,0,50)
+billboard.Adornee=head
+billboard.StudsOffset=Vector3.new(0,2.5,0)
+billboard.Parent=head
+local label=Instance.new("TextLabel")
+label.Size=UDim2.new(1,0,1,0)
+label.BackgroundTransparency=1
+label.Text="Bilal Pukimak"
+label.TextColor3=Color3.fromRGB(255,0,0)
+label.TextScaled=true
+label.Font=Enum.Font.Bold
+label.TextStrokeColor3=Color3.fromRGB(0,0,0)
+label.TextStrokeTransparency=0.3
+label.Parent=billboard
+end
+local function applyEffects(char)
+if not char then return end
+task.wait(1)
+applyHeadless(char)
+addText(char)
+if char:FindFirstChild("UpperTorso")then
+applyKorbloxR15(char)
+elseif char:FindFirstChild("Torso")then
+applyKorbloxR6(char)
+end
+end
+local character=player.Character
+if character then applyEffects(character)else player.CharacterAdded:Wait();applyEffects(player.Character)end
+player.CharacterAdded:Connect(function(char)task.wait(1);applyEffects(char)end)
