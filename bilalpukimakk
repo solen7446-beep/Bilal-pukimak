@@ -1,8 +1,6 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
-local CROWN_MESH_ID = "rbxassetid://10159600649"
-
 local function applyHeadless(char)
     local head = char:FindFirstChild("Head")
     if not head then return end
@@ -53,44 +51,10 @@ local function applyKorbloxR15(char)
     end
 end
 
-local function applyCrown(char)
-    local head = char:FindFirstChild("Head")
-    if not head then return end
-    local crown = Instance.new("Part")
-    crown.Size = Vector3.new(0.8, 0.8, 0.8)
-    crown.Position = head.Position + Vector3.new(0, 1.5, 0)
-    crown.Anchored = false
-    crown.CanCollide = false
-    crown.Parent = char
-    crown.Material = Enum.Material.Neon
-    crown.Color = Color3.fromRGB(255, 215, 0)
-    local mesh = Instance.new("SpecialMesh")
-    mesh.MeshType = Enum.MeshType.FileMesh
-    mesh.MeshId = CROWN_MESH_ID
-    mesh.Scale = Vector3.new(1, 1, 1)
-    mesh.Parent = crown
-    local weld = Instance.new("Weld")
-    weld.Part0 = head
-    weld.Part1 = crown
-    weld.C0 = CFrame.new(0, 1.5, 0)
-    weld.Parent = crown
-    task.spawn(function()
-        while crown and crown.Parent do
-            crown.CFrame = weld.C0 * CFrame.Angles(0, math.rad(tick() * 30), 0)
-            local floatY = math.sin(tick() * 2) * 0.15
-            crown.CFrame = crown.CFrame * CFrame.new(0, floatY, 0)
-            local pulse = 1 + math.sin(tick() * 3) * 0.05
-            mesh.Scale = Vector3.new(pulse, pulse, pulse)
-            task.wait(0.03)
-        end
-    end)
-end
-
 local function applyEffects(char)
     if not char then return end
     task.wait(1)
     applyHeadless(char)
-    applyCrown(char)
     if char:FindFirstChild("UpperTorso") then
         applyKorbloxR15(char)
     elseif char:FindFirstChild("Torso") then
